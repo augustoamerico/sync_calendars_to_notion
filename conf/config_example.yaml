@@ -1,0 +1,49 @@
+calendars:
+  Main_Calendar:
+    type: GoogleCalendar
+    credentials_file_path: ...
+    scopes:
+      - https://www.googleapis.com/auth/calendar
+    calendar_id: ...
+    schema:
+      id: id
+      name: summary
+      url: htmlLink
+      start: start
+      end: end
+      organizer:
+        - nested:
+            - organizer
+            - email
+      status: Status
+      owner:
+        - constant: same as calendar id, or any other constant that you would like
+
+  Notion_Calendar:
+    type: NotionCalendar
+    notion_token: ...
+    notion_calendar_url: ...
+    schema:
+      id: Id
+      name: name
+      url: url
+      start:
+        - nested:
+          - start_date
+          - start
+      end:
+        - nested:
+          - end_date
+          - start
+      organizer: organizer
+      status: status
+      owner: owner
+
+sync:
+  GoogleCalendar2Notion:
+    sync_from:
+      Main_Calendar
+    sync_to:
+      Notion_Calendar
+    sync_time:
+      days: 60
