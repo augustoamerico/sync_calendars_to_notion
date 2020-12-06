@@ -1,9 +1,14 @@
 # Calendars to Notion Synchronization
 
-This script utilizes the unofficial [Notion API](https://github.com/jamalex/notion-py) to interact with a Collection database of Calendar events. 
+This script utilizes the unofficial [Notion API](https://github.com/jamalex/notion-py) to get calendar eventso from external sources to a Notion Collection database of Calendar events. 
 To integrate with others calenders, the apis used are:
 - [Google Calendar API](https://developers.google.com/calendar)
 - Microsoft Outlook: To Do
+
+Want to extend to other email services? 
+You just need to implement a class extending the `src.repositories.ICalendar` interface, and create a new type pattern match to instatiate that class.
+
+PR's are welcomed!
 
 ## Where can I run the script?
 
@@ -11,7 +16,7 @@ This script can run in any machine running python.
 You can run it in you computer, and run it every now and then. Or you can put it running as a chron job in any host - A cloud one, or your always-on mini computer at home.
 Want to run this as a lambda function on a free cloud account? Go ahead!
 
-In this documentation, I only explain how to run this as a chron job in a linux host.
+In this documentation, I only explain how to run this on a linux host.
 Any Pull Request aim to improve the coverage on how to install in other endpoits are welcome!
 
 ## How does this work?
@@ -24,7 +29,7 @@ You can define as many flows as you want.
 ### Defining the schema integration
 
 In every integration, we need to map values. This is, the events in every calendar does not necessarely have the same set of attributes, but we can map this.
-This script uses the following internal attributes:
+This script uses the following internal attributes of a calendar event:
 - id: the id of the event
 - name: the name of the event
 - url: the url of the event
@@ -35,13 +40,15 @@ This script uses the following internal attributes:
 - owner: a string identifying the owner calendar of the event
 
 
-In each calendar definition, these values must be mapped.
+In each calendar definition, we need to map these internal attributes with the attributes of the event calendar attribute's service.
 
 ### Google Calendar
 
 #### Pre Requisites
 
-Create a app service credentials, and give access to this entity on your calendars
+You need to create a google project, activate the Google Calendar API in that project and create a service account.
+You can find instructions for these in [here](https://support.google.com/a/answer/7378726?hl=en).
+By the end of this, you should have a json file with the credentials of the service account.
 
 #### Configurations
 
@@ -117,5 +124,35 @@ Note that this is the collection / database url, and not the page where the coll
 
 ## Defining Sync Flows
 
+A sync flow is a named entity that contains:
+- The calendar from where I am getting the events
+- The calendar to where I am pushing the events
+- The time window that I am using.
+
+An example of a sync flow named `GoogleCalendar2Notion` would be:
+
+```
+GoogleCalendar2Notion:
+sync_from:
+    Main_Calendar
+sync_to:
+    Notion_Calendar
+sync_time:
+    days: 60
+```
 
 ## How to set this up?
+
+1. Clone the repository
+2. Create a virtualenv with python >=3.5
+
+    - `python -m venv venv`
+3. Install the requirements in the virtualenv
+
+    - `venv/bin/python -m pip install -r requirements.txt`
+4. Set your `conf/config.yaml` file. You can find an example file in `conf/config_example.yaml.`
+5. Run your script
+
+    - `venv/bin/python main.py --config-file conf/config.yaml`
+6. Wait for it to complete
+
